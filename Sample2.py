@@ -39,9 +39,7 @@ class TicTacToe:
                 move = input("Enter a move (row, column): ")  # move 할 수 있는 기회
                 if self.check_valid_move(move.split(',')):  # move가 유효한지 확인
                     # move 실행. 나의 움직임으로 만들기
-                    # 상대방에게 보내기. 먼저 보내야지 exit하기 전에 실행. -> 승/패 메시지 출력
-                    client.send(move.encode('utf-8'))
-
+                    client.send(move.encode('utf-8'))  # 상대방에게 보내기
                     self.apply_move(move.split(','), self.you)
                     self.turn = self.opponent  # 순서 넘어감
 
@@ -120,4 +118,4 @@ class TicTacToe:
 
 
 game = TicTacToe()
-game.host_game('localhost', 9999)
+game.connect_to_game('localhost', 9999)
