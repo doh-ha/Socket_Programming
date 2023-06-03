@@ -35,12 +35,11 @@ if __name__ == '__main__':
         ######################### Fill Out ################################
         # Send ACK
         client_socket.send("ACK".encode())
-
         ###################################################################
 
         # Start game
         root = TTT(target_socket=client_socket,
                    src_addr=MY_IP, dst_addr=SERVER_IP)
-        root.play(start_user=start)
+        root.play(start_user=int(start))
         root.mainloop()
         client_socket.close()

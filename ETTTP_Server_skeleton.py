@@ -18,7 +18,6 @@ from ETTTP_TicTacToe_skeleton import TTT, check_msg
 
 
 if __name__ == '__main__':
-
     global send_header, recv_header
     SERVER_PORT = 12000
     SIZE = 1024
@@ -30,7 +29,7 @@ if __name__ == '__main__':
     while True:
         client_socket, client_addr = server_socket.accept()
 
-        start = random.randrange(0, 2)   # select random to start
+        start = random.randrange(0, 2)  # select random to start
 
         ###################################################################
         # Send start move information to peer
@@ -43,12 +42,11 @@ if __name__ == '__main__':
             print("ACK received. Start the game.")
         else:
             print("No ACK received. Check the client.")
-
         ###################################################################
 
         root = TTT(client=False, target_socket=client_socket,
                    src_addr=MY_IP, dst_addr=client_addr[0])
-        root.play(start_user=start)
+        root.play(start_user=int(start))
         root.mainloop()
 
         client_socket.close()
