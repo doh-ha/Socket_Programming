@@ -400,17 +400,18 @@ class TTT(tk.Tk):  # TK 상속
         Function to check if the result between peers are same
         get: if it is false, it means this user is winner and need to report the result first
         """
+        result = "YOU" if winner == self.user else "ME"
+
         if not get:
             # 이 사용자가 승자인 경우 결과를 먼저 보고해야 함
-            result = "YOU" if winner == self.user else "ME"
-            message = f"SEND ETTTP/1.0\r\nHost:{self.src_addr}\r\nWinner: {result}\r\n\r\n"
+            message = f"SEND ETTTP/1.0\r\nHost:127.0.0.1\r\nWinner: {result}\r\n\r\n"
             self.socket.send(message.encode())
         else:
             # 상대편의 결과 수신
             recv_msg = self.socket.recv(1024).decode().split("\r\n")
 
             # 상대방이 보낸 결과가 정확한지 확인
-            if len(recv_msg) < 4 or recv_msg[0] != "SEND ETTTP/1.0" or f"Host:{self.dst_addr}" not in recv_msg[1] or "Winner: " not in recv_msg[2]:
+            if len(recv_msg) < 4 or recv_msg[0] != "SEND ETTTP/1.0" or f"Host:127.0.0.1" not in recv_msg[1] or "Winner: " not in recv_msg[2]:
                 print("프로토콜 형식에 맞지 않습니다")
                 return False
 
@@ -420,16 +421,9 @@ class TTT(tk.Tk):  # TK 상속
                 return False
 
             # 패자인 경우 결과를 보고함
-            result = "YOU" if winner == self.user else "ME"
-            message = f"ACK ETTTP/1.0\r\nHost:{self.src_addr}\r\nWinner: {result}\r\n\r\n"
+            message = f"ACK ETTTP/1.0\r\nHost:127.0.0.1\r\nWinner: {result}\r\n\r\n"
             self.socket.send(message.encode())
-
-            # 승리 혹은 패배를 출력
-            if result == "YOU":
-                print("You Win")
-            else:
-                print("You Lose")
-
+            
         return True
 
     # vvvvvvvvvvvvvvvvvvv  DO NOT CHANGE  vvvvvvvvvvvvvvvvvvv
