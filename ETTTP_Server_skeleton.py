@@ -31,29 +31,38 @@ if __name__ == '__main__':
 
         ###################################################################
         # Send start move information to peer
-        client_socket.send(str(start).encode())
+        # start = 0 : Server , start = 1 : Client
+        if start == 0:
+            client_socket.send(bytes("SEND ETTTP/1.0 \r\n"
+                                     + "Host: "+MY_IP+" \r\n"
+                                     + "First-Move: ME \r\n\r\n", "utf-8"))
+        else:
+            client_socket.send(bytes("SEND ETTTP/1.0 \r\n"
+                                     + "Host: "+MY_IP+" \r\n"
+                                     + "First-Move: YOU \r\n\r\n", "utf-8"))
 
         ######################### Fill Out ################################
         # Receive ack - if ack is correct, start game
         ack = client_socket.recv(SIZE).decode()
-        if check_msg(ack, client_addr):
+        start_index = ack.find("A")
+        end_index = ack.find(" ")
+        ack = ack[:start_index] + ack[end_index + 1:]
+        ack_msg = ack.split("\r\n")
+        if (ack_msg[0] != ("ETTTP/1.0 ")) or (ack_msg[1] != "Host: "+str(MY_IP)+" "):
+            print("프로토콜 형식에 맞지 않습니다")
+            client_socket.close()
+            exit()
+        else:
             print("ACK received. Start the game.")
-
-            ###################################################################
 
             root = TTT(client=False, target_socket=client_socket,
                        src_addr=MY_IP, dst_addr=client_addr[0])
             root.play(start_user=int(start))
 
             # Move `root.mainloop()` here
-            # 이벤트 메시지 루프. 키보드나 마우스로부터 오는 메시지 받고 전달
-            root.mainloop()
+            root.mainloop()  # 이벤트 메시지 루프. 키보드나 마우스로부터 오는 메시지 받고 전달
 
-            # 소켓 종료. 연결 끊기
             client_socket.close()
 
             break
-
-        else:
-            print("No ACK received. Check the client.")
     server_socket.close()

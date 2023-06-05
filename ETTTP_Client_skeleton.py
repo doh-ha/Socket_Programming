@@ -35,14 +35,35 @@ if __name__ == '__main__':
         ###################################################################
         # Receive who will start first from the server
         # 누가 먼저 시작할지 서버에서 계산한 결과를 받아옴. byte를 문자열로 변환하여 읽음
-        start = client_socket.recv(SIZE).decode()
+        recv = client_socket.recv(SIZE).decode()
+
+        # 프로토콜 분리
+        start_index = recv.find("S")
+        end_index = recv.find(" ")
+        recv = recv[:start_index] + recv[end_index + 1:]
+        recv_msg = recv.split("\r\n")
+
+        # 프로토콜 형식 검사
+        if (recv_msg[0] != ("ETTTP/1.0 ")) or (recv_msg[1] != "Host: "+str(SERVER_IP)+" "):
+            print("프로토콜 형식에 맞지 않습니다")
+            client_socket.close()
+            exit()
 
         ######################### Fill Out ################################
         # Send ACK
-        # 서버에 ACK 전송. 문자열을 byte로 변환하여 인코딩
-        client_socket.send("ACK".encode())
-        ###################################################################
+        # 서버 차례
+        if recv_msg[2] == "First-Move: ME ":
+            start = 0
+            client_socket.send(bytes("ACK ETTTP/1.0 \r\n"
+                                     + "Host: "+MY_IP+" \r\n"
+                                     + "First-Move: YOU \r\n\r\n", "utf-8"))
 
+        ###################################################################
+        else:
+            start = 1
+            client_socket.send(bytes("ACK ETTTP/1.0 \r\n"
+                                     + "Host: "+MY_IP+" \r\n"
+                                     + "First-Move: ME \r\n\r\n", "utf-8"))
         # Start game
 
         root = TTT(target_socket=client_socket,
